@@ -2,6 +2,29 @@ provider "aws" {
   region = "ap-northeast-1"
 }
 
+/*
+terraform {
+  backend "s3" {
+    bucket         = "ns-kelee-terraform-tutorial"
+    key            = "stage/services/webserver-cluster/terraform.tfstate"
+    region         = "ap-northeast-1"
+
+    dynamodb_table = "simple-server-locks"
+    encrypt        = true
+  }
+}
+*/
+
+data "terraform_remote_state" "db" {
+  backend = "s3"
+
+  config = {
+    bucket = "ns-kelee-terraform-tutorial"
+    key    = "stage/data-stores/mysql/terraform.tfstate"
+    region = "ap-northeast-1"
+  }
+}
+
 resource "aws_security_group" "server_secgroup" {
   name = "server-secgroup"
   ingress {
@@ -19,7 +42,9 @@ resource "aws_launch_configuration" "server_config" {
 
   user_data = <<-EOF
               #!/bin/bash
-              echo "Hello world!" > index.html
+              echo "Hello world!" >> index.html
+              echo "${data.terraform_remote_state.db.outputs.address}" >>index.html
+              echo "${data.terraform_remote_state.db.outputs.port}" >>index.html
               nohup busybox httpd -f -p ${var.server_port} &
               EOF
 
