@@ -9,6 +9,14 @@ terraform {
   }
 }
 
+locals {
+  http_port    = 80
+  any_port     = 0
+  any_protocol = "-1"
+  tcp_protocol = "tcp"
+  all_ips      = "0.0.0.0/0"
+}
+
 data "terraform_remote_state" "db" {
   backend = "s3"
 
@@ -24,8 +32,8 @@ resource "aws_security_group" "server_secgroup" {
   ingress {
     from_port   = var.server_port
     to_port     = var.server_port
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    protocol    = local.tcp_protocol
+    cidr_blocks = [local.all_ips]
   }
 }
 
@@ -85,7 +93,7 @@ resource "aws_lb" "server_lb" {
 
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.server_lb.arn
-  port              = 80
+  port              = local.http_port
   protocol          = "HTTP"
 
   default_action {
@@ -102,17 +110,17 @@ resource "aws_lb_listener" "http" {
 resource "aws_security_group" "alb_secgroup" {
   name = "${var.cluster_name}-simple-server-alb-secgroup"
   ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port   = local.http_port
+    to_port     = local.http_port
+    protocol    = local.tcp_protocol
+    cidr_blocks = [local.all_ips]
   }
 
   egress {
-    from_port  = 0
-    to_port    = 0
-    protocol   = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port  = local.any_port
+    to_port    = local.any_port
+    protocol   = local.any_protocol
+    cidr_blocks = [local.all_ips]
   }
 }
 
