@@ -2,7 +2,6 @@ provider "aws" {
   region = "ap-northeast-1"
 }
 
-/*
 terraform {
   backend "s3" {
     bucket         = "ns-kelee-terraform-tutorial"
@@ -13,7 +12,6 @@ terraform {
     encrypt        = true
   }
 }
-*/
 
 resource "aws_db_instance" "db_server" {
   identifier_prefix = "simple-server"
