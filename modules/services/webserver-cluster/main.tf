@@ -41,7 +41,7 @@ data "template_file" "user_data" {
 
 resource "aws_launch_configuration" "server_config" {
   image_id        = "ami-0278fe6949f6b1a06"
-  instance_type   = "t2.micro"
+  instance_type   = var.instance_type
   security_groups = [aws_security_group.server_secgroup.id]
 
   user_data = data.template_file.user_data.rendered
@@ -66,8 +66,8 @@ resource "aws_autoscaling_group" "server_asg" {
   target_group_arns = [aws_lb_target_group.server_asg.arn]
   health_check_type = "ELB"
 
-  min_size = 2
-  max_size = 10
+  min_size = var.min_size
+  max_size = var.max_size
 
   tag {
     key                 = "Name"
