@@ -21,4 +21,5 @@ resource "aws_db_instance" "db_server" {
   name              = "server_db"
   username          = "admin"
   password          = var.db_password
+  skip_final_snapshot = true
 }
