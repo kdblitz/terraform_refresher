@@ -1,7 +1,3 @@
-provider "aws" {
-  region = "ap-northeast-1"
-}
-
 terraform {
   backend "s3" {
     bucket         = "ns-kelee-terraform-tutorial"
@@ -13,13 +9,14 @@ terraform {
   }
 }
 
-resource "aws_db_instance" "db_server" {
-  identifier_prefix = "simple-server"
-  engine            = "mysql"
-  allocated_storage = 10
-  instance_class    = "db.t2.micro"
-  name              = "server_db"
-  username          = "admin"
-  password          = var.db_password
-  skip_final_snapshot = true
+provider "aws" {
+  region = "ap-northeast-1"
+}
+
+module "mysql_module" {
+  source = "../../../modules/data-stores/mysql"
+
+  cluster_name = "simple_server_staging"
+  db_username  = "admin"
+  db_password  = var.db_password
 }

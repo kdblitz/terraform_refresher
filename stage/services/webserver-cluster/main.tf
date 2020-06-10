@@ -1,3 +1,14 @@
+terraform {
+  backend "s3" {
+    bucket         = "ns-kelee-terraform-tutorial"
+    key            = "stage/services/webserver-cluster/terraform.tfstate"
+    region         = "ap-northeast-1"
+
+    dynamodb_table = "simple-server-locks"
+    encrypt        = true
+  }
+}
+
 provider "aws" {
     region = "ap-northeast-1"
 }
@@ -5,7 +16,7 @@ provider "aws" {
 module "webserver_cluster" {
   source = "../../../modules/services/webserver-cluster"
 
-  cluster_name           = "simple-server-staging"
+  cluster_name           = "server-staging"
   db_remote_state_bucket = "ns-kelee-terraform-tutorial"
   db_remote_state_key    = "stage/data-stores/mysql/terraform.tfstate"
 

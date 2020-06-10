@@ -1,14 +1,3 @@
-terraform {
-  backend "s3" {
-    bucket         = "ns-kelee-terraform-tutorial"
-    key            = "stage/services/webserver-cluster/terraform.tfstate"
-    region         = "ap-northeast-1"
-
-    dynamodb_table = "simple-server-locks"
-    encrypt        = true
-  }
-}
-
 locals {
   http_port    = 80
   any_port     = 0
@@ -29,12 +18,16 @@ data "terraform_remote_state" "db" {
 
 resource "aws_security_group" "server_secgroup" {
   name = "${var.cluster_name}-server-secgroup"
-  ingress {
-    from_port   = var.server_port
-    to_port     = var.server_port
-    protocol    = local.tcp_protocol
-    cidr_blocks = [local.all_ips]
-  }
+}
+
+resource "aws_security_group_rule" "all_server_inbound" {
+  type = "ingress"
+  security_group_id = aws_security_group.server_secgroup.id
+
+  from_port   = var.server_port
+  to_port     = var.server_port
+  protocol    = local.tcp_protocol
+  cidr_blocks = [local.all_ips]
 }
 
 data "template_file" "user_data" {
@@ -79,13 +72,13 @@ resource "aws_autoscaling_group" "server_asg" {
 
   tag {
     key                 = "Name"
-    value               = "${var.cluster_name}-simple-server-asg"
+    value               = "${var.cluster_name}-asg"
     propagate_at_launch = true
   }
 }
 
 resource "aws_lb" "server_lb" {
-  name               = "${var.cluster_name}-simple-server-alb"
+  name               = "${var.cluster_name}-alb"
   load_balancer_type = "application"
   subnets            = data.aws_subnet_ids.default.ids
   security_groups    = [aws_security_group.alb_secgroup.id]
@@ -109,23 +102,30 @@ resource "aws_lb_listener" "http" {
 
 resource "aws_security_group" "alb_secgroup" {
   name = "${var.cluster_name}-simple-server-alb-secgroup"
-  ingress {
-    from_port   = local.http_port
-    to_port     = local.http_port
-    protocol    = local.tcp_protocol
-    cidr_blocks = [local.all_ips]
-  }
+}
 
-  egress {
-    from_port  = local.any_port
-    to_port    = local.any_port
-    protocol   = local.any_protocol
-    cidr_blocks = [local.all_ips]
-  }
+resource "aws_security_group_rule" "allow_http_inbound" {
+  type              = "ingress"
+  security_group_id = aws_security_group.alb_secgroup.id
+
+  from_port   = local.http_port
+  to_port     = local.http_port
+  protocol    = local.tcp_protocol
+  cidr_blocks = [local.all_ips]
+}
+
+resource "aws_security_group_rule" "allow_all_outbound" {
+  type              = "egress"
+  security_group_id = aws_security_group.alb_secgroup.id
+
+  from_port  = local.any_port
+  to_port    = local.any_port
+  protocol   = local.any_protocol
+  cidr_blocks = [local.all_ips]
 }
 
 resource "aws_lb_target_group" "server_asg" {
-  name = "${var.cluster_name}-simple-server-asg"
+  name = "${var.cluster_name}-asg"
   port = var.server_port
   protocol = "HTTP"
   vpc_id   = data.aws_vpc.default.id

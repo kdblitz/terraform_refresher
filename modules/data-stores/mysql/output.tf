@@ -1,9 +1,9 @@
 output "address" {
   description = "Connect to this db address"
-  value       = module.mysql_module.address
+  value       = aws_db_instance.db_server.address
 }
 
 output "port" {
   description = "Port to listen on"
-  value       = module.mysql_module.port
+  value       = aws_db_instance.db_server.port
 }
