@@ -9,6 +9,11 @@ variable "cluster_name" {
   type        = string
 }
 
+variable "enable_autoscaling" {
+  description = "set to true to enable autoscaling schedule"
+  type        = bool
+}
+
 variable "db_remote_state_bucket" {
   description = "s3 bucket containing db remote state"
   type        = string
@@ -32,4 +37,10 @@ variable "min_size" {
 variable "max_size" {
   description = "maximum count for auto scaling group"
   type        = number
+}
+
+variable "custom_tags" {
+  description = "custom tags to attach instances in ASG"
+  type        = map(string)
+  default     = {}
 }
