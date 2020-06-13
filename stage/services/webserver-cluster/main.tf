@@ -20,13 +20,9 @@ module "webserver_cluster" {
   db_remote_state_bucket = "ns-kelee-terraform-tutorial"
   db_remote_state_key    = "stage/data-stores/mysql/terraform.tfstate"
 
-  instance_type      = "t2.micro"
-  min_size           = 2
-  max_size           = 10
-  enable_autoscaling = false
-
-  custom_tags = {
-    Owner = "my-team"
-    DeployedBy = "terraform"
-  }
+  instance_type        = "t2.micro"
+  min_size             = 2
+  max_size             = 10
+  enable_autoscaling   = false
+  enable_new_user_data = true
 }

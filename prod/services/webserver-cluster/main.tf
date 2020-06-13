@@ -10,8 +10,14 @@ module "webserver_cluster" {
   # TODO: change to correct key
   db_remote_state_key    = "stage/data-stores/mysql/terraform.tfstate"
 
-  instance_type      = "m4.large"
-  min_size           = 2
-  max_size           = 10
-  enable_autoscaling = true
+  instance_type        = "m4.large"
+  min_size             = 2
+  max_size             = 10
+  enable_autoscaling   = true
+  enable_new_user_data = false
+
+  custom_tags = {
+    Owner = "my-team"
+    DeployedBy = "terraform"
+  }
 }

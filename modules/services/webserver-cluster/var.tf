@@ -14,6 +14,12 @@ variable "enable_autoscaling" {
   type        = bool
 }
 
+variable "enable_new_user_data" {
+  description = "use new user data if true"
+  type        = bool
+}
+
+
 variable "db_remote_state_bucket" {
   description = "s3 bucket containing db remote state"
   type        = string
