@@ -76,14 +76,21 @@ data "aws_subnet_ids" "default" {
 }
 
 resource "aws_autoscaling_group" "server_asg" {
+  name                 = "${var.cluster_name}-${aws_launch_configuration.server_config.name}"
+
   launch_configuration = aws_launch_configuration.server_config.name
   vpc_zone_identifier  = data.aws_subnet_ids.default.ids
-
-  target_group_arns = [aws_lb_target_group.server_asg.arn]
-  health_check_type = "ELB"
+  target_group_arns    = [aws_lb_target_group.server_asg.arn]
+  health_check_type    = "ELB"
 
   min_size = var.min_size
   max_size = var.max_size
+
+  min_elb_capacity = var.min_size
+
+  lifecycle {
+    create_before_destroy = true
+  }
 
   tag {
     key                 = "Name"
@@ -92,7 +99,11 @@ resource "aws_autoscaling_group" "server_asg" {
   }
 
   dynamic "tag" {
-    for_each = var.custom_tags
+    for_each = {
+      for key, value in var.custom_tags:
+      key => upper(value)
+      if key != "Name"
+    }
 
     content {
       key                 = tag.key
