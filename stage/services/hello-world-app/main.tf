@@ -13,16 +13,17 @@ provider "aws" {
     region = "ap-northeast-1"
 }
 
-module "webserver_cluster" {
-  source = "../../../modules/services/webserver-cluster"
+module "hello_world_app" {
+  source = "../../../modules/services/hello-world-app"
 
-  cluster_name           = "server-staging"
+  server_text = "staging text here!"
+
+  environment = var.environment
   db_remote_state_bucket = "ns-kelee-terraform-tutorial"
   db_remote_state_key    = "stage/data-stores/mysql/terraform.tfstate"
 
   instance_type        = "t2.micro"
   min_size             = 2
-  max_size             = 10
+  max_size             = 2
   enable_autoscaling   = false
-  enable_new_user_data = true
 }

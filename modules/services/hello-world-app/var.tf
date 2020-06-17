@@ -1,24 +1,7 @@
-variable "server_port" {
-  description = "Server port for http request"
-  type        = number
-  default     = 8080
-}
-
-variable "cluster_name" {
-  description = "name(prefix) used for cluster resources"
+variable "environment" {
+  description = "The name of environment"
   type        = string
 }
-
-variable "enable_autoscaling" {
-  description = "set to true to enable autoscaling schedule"
-  type        = bool
-}
-
-variable "enable_new_user_data" {
-  description = "use new user data if true"
-  type        = bool
-}
-
 
 variable "db_remote_state_bucket" {
   description = "s3 bucket containing db remote state"
@@ -27,11 +10,6 @@ variable "db_remote_state_bucket" {
 
 variable "db_remote_state_key" {
   description = "path of remote state in s3"
-  type        = string
-}
-
-variable "instance_type" {
-  description = "EC2 type to run (eg. t2.micro)"
   type        = string
 }
 
@@ -45,10 +23,9 @@ variable "max_size" {
   type        = number
 }
 
-variable "custom_tags" {
-  description = "custom tags to attach instances in ASG"
-  type        = map(string)
-  default     = {}
+variable "enable_autoscaling" {
+  description = "set to true to enable autoscaling schedule"
+  type        = bool
 }
 
 variable "ami" {
@@ -57,8 +34,26 @@ variable "ami" {
   default     = "ami-0278fe6949f6b1a06"
 }
 
+variable "instance_type" {
+  description = "EC2 type to run (eg. t2.micro)"
+  type        = string
+  default     = "t2.micro"
+}
+
+variable "server_port" {
+  description = "Server port for http request"
+  type        = number
+  default     = 8080
+}
+
 variable "server_text" {
   description = "The output text of the server"
   type        = string
   default     = "Hello, world!"
+}
+
+variable "custom_tags" {
+  description = "custom tags to attach instances in ASG"
+  type        = map(string)
+  default     = {}
 }
